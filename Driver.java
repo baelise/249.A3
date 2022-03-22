@@ -1,14 +1,11 @@
 import java.util.Scanner;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.InputMismatchException;
 import java.util.StringTokenizer;
 
@@ -47,7 +44,7 @@ public class Driver {
 					fileNames[i] = fileName;
 				}
 				else {
-					System.out.println("Invalid file type, must be .csv or.CSV type");
+					System.out.println("Invalid file type, must be .CSV type");
 					i = i -1;
 				}
 			}
@@ -60,11 +57,11 @@ public class Driver {
 		
 		//File inFile = new File;
 		Scanner sc = null;
-		String[] outFiles = new String[fileNames.length];
+		//String[] outFiles = new String[fileNames.length];
 		for(int j = 0; j < fileNames.length; j++) {
 			try {
 				sc = new Scanner(new FileInputStream(fileNames[j]));
-				outFiles[j] = ConvertCSVtoHTML(fileNames[j], fileNames);
+				ConvertCSVtoHTML(fileNames[j], fileNames);
 			} 
 			catch (FileNotFoundException e) {
 				System.out.println("File '" + fileNames[j] + "' could not be found or opened. Please check if file exists or is readable.");
@@ -89,57 +86,82 @@ public class Driver {
 	}
 	
 	
-	public static String ConvertCSVtoHTML(String file, String[] outFiles) {
+	public static void ConvertCSVtoHTML(String file, String[] outFiles) {
 		// checking if valid csv file
 		StringTokenizer st= null;
 		String line = null;
+		String[] attributes = new String[4];
+		//String[][] data = null;
+		String htmlFile = "";
+		PrintWriter pw = null;
+		//PrintWriter pwE = null; // this is for Exceptions.log later
 		try {
-			FileReader fileRead = new FileReader("C:/eliseproulx/eclipse-workspace/Assignment3.249/src");
+			int lineNum = 0, lessLine = 0;
+			String strFile = "C:/eliseproulx/eclipse-workspace/Assignment3.249/src/" + file;
+			FileReader fileRead = new FileReader(strFile);
 			BufferedReader inputStream = new BufferedReader(fileRead);
 			while((line = inputStream.readLine())!= null) {
-				st = new StringTokenizer(line, ",");
-				st.nextToken();
+				lineNum++;
+				for(int k = 0; k < 5; k++) {
+					st = new StringTokenizer(line, ",");
+					try {
+						if(lineNum == 1) {
+							String tokenHead = st.nextToken();
+							if(tokenHead == "") {
+								// remove length one from outfiles 
+								throw new CSVAttributeMissing(strFile);
+							}
+							else {
+								attributes[k] = tokenHead;
+							}
+						}
+						else {
+							String tokenData = st.nextToken();
+							if(tokenData == "") {
+								//line = inputStream.readLine(); 
+								throw new CSVDataMissing(strFile, lineNum, attributes[k], tokenData);
+							}
+							else {
+								// creating corresponding html
+								for(int i = 0; i < outFiles.length; i++) {
+									try {
+										htmlFile = outFiles[i].substring(0, (outFiles[i].length())-4);
+										htmlFile = htmlFile + "html";
+										System.out.println("This file: " + htmlFile);
+										pw = new PrintWriter(new FileOutputStream(htmlFile), true);
+										pw.write("**  " + tokenData + "  **");
+									}
+									catch (FileNotFoundException e) {
+										System.out.println("Error creating or opening " + htmlFile);
+									}
+								}
+							}
+						}
+					}
+					catch (CSVAttributeMissing e) {
+						inputStream.close();
+						fileRead.close();
+						System.exit(0);
+					}
+					catch (CSVDataMissing e) {
+						lessLine++;
+						line = inputStream.readLine(); // should skip line with missing data 
+					}
+				}
+				//pw.println();
 			}
+			System.out.println("out of while, lineNum at: " + lineNum + ", lessLine at: " + lessLine);
+			inputStream.close();
+			fileRead.close();
+			//data = new String[lineNum - lessLine - 1][4];
 		}
 		catch (FileNotFoundException e) {
-			
+		System.exit(0);
+		// here print to Exceptions.log??
 		}
 		catch (IOException e) {
-			
+			System.exit(0);
+			// here print to Exceptions.log??
 		}
-//		catch (CSVAttributeMissing e) {
-//			
-//		}
-//		catch (CSVDataMissing e) {
-//			
-//		}
-
-		
-		
-		// creating corresponding html
-		String thisFile = "";
-		PrintWriter pw = null;
-		PrintWriter pwE = null;
-		for(int i = 0; i < outFiles.length; i++) {
-			try {
-				thisFile = outFiles[i].substring(0, (outFiles[i].length())-4);
-				thisFile = thisFile + "html";
-				System.out.println("This file: " + thisFile);
-				pw = new PrintWriter(new FileOutputStream(thisFile), true);
-			}
-			catch (FileNotFoundException e) {
-				System.out.println("Error creating or opening " + thisFile);
-			}
-		}
-		
-		try {
-			pwE = new PrintWriter(new FileOutputStream("Exceptions.log"), true);
-		}
-		catch (FileNotFoundException e) {
-			System.out.println("Error creating or opening Exceptions.log");
-		}
-		pw.close();
-		pwE.close();
-		return "";
 	}
 }
