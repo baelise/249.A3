@@ -5,8 +5,13 @@ public class CSVAttributeMissing extends Exception {
 		super("\n\n***Error 2: Input row cannot be parsed due to missing information");
 	}
 	
-	public CSVAttributeMissing(String message) {
-		super(message);
+	public CSVAttributeMissing(String fileName) {
+		System.out.println("Error converting file '" + fileName + "' to HTML due to missing attribute.");
+//		if(tokenHead == "") {
+//		}
+//		else {
+//			
+//		}
 	}
 
 }
