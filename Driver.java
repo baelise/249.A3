@@ -213,7 +213,7 @@ public class Driver {
 							}
 						}
 						else {
-							String tokenData = st.nextToken();
+							String tokenData = tokenTest;
 							if(tokenData == "") {
 								throw new CSVDataMissing(file, lineNum, attributes[k]);
 							}
