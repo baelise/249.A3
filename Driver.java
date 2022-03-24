@@ -82,7 +82,7 @@ public class Driver {
 			System.out.println("\n" + outFiles[k]);
 		}
 		
-		System.out.println("Please enter a file name: ");
+		System.out.println("\nPlease enter a file name: ");
 		String selectFile = keyboard.nextLine();
 		try {
 			FileReader fileRead = new FileReader(selectFile);
@@ -98,6 +98,7 @@ public class Driver {
 		System.out.println("LEAVING");
 	}
 	
+
 	
 	public static boolean TooSmall(int i) {
 		if(i < 2) {
@@ -172,6 +173,7 @@ public class Driver {
 		String htmlFile = "";
 		PrintWriter pw = null;
 		String tokenNote = null;
+		String tokenCaption = null;
 		PrintWriter pwE = null;
 		
 		try {
@@ -183,9 +185,7 @@ public class Driver {
 			System.out.println(message);
 			System.exit(0);
 		}
-		int lineNum = 0, lessLine = 0;
-		String strFile = "C:/eliseproulx/eclipse-workspace/Assignment3.249/src/" + file.getName();
-		
+		int lineNum = 0, lessLine = 0;		
 		while(inputStream.hasNextLine()) {
 			line = inputStream.nextLine();
 			lineNum++;
@@ -195,7 +195,7 @@ public class Driver {
 				try {
 					if(lineNum == 1) {
 						// this is for first line in file, its a single data field "title" row 
-						String tokenCaption = tokenTest;
+						tokenCaption = tokenTest;
 						k = 5;
 					}
 					if(lineNum == 2) {
@@ -231,7 +231,7 @@ public class Driver {
 								outFiles[fileIndex] = htmlFile;
 							}
 							catch (FileNotFoundException e) {
-								String message = "\nError creating '" + htmlFile + "'";
+								String message = "\nError creating '" + htmlFile + "'\nNOT due to missing Attribute or Data";
 								pwE.append("\n" + message);
 								System.out.println(message);
 								pwE.flush();
