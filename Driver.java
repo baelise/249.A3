@@ -113,7 +113,7 @@ public class Driver {
 		
 		String[] newArr = new String[fileArr.length - 1];
 		for(int j = 0; j < newArr.length; j++) {
-			if(fileArr[j].equals("REMOVE ME")) {
+			if(!(fileArr[j].equals("REMOVE ME"))) {
 				newArr[j] = fileArr[j];
 			}
 		}
