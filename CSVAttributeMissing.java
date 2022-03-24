@@ -7,11 +7,9 @@ public class CSVAttributeMissing extends Exception {
 	
 	public CSVAttributeMissing(String fileName) {
 		System.out.println("Error converting file '" + fileName + "' to HTML due to missing attribute.");
-//		if(tokenHead == "") {
-//		}
-//		else {
-//			
-//		}
 	}
-
+	
+	public String getMessage(String fileName) {
+		return "Error converting file '" + fileName + "' to HTML due to missing attribute.";
+	}
 }
