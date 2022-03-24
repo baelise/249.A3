@@ -55,13 +55,12 @@ public class Driver {
 		}
 		keyboard.close();
 		
-		//File inFile = new File;
 		Scanner sc = null;
 		//String[] outFiles = new String[fileNames.length];
 		for(int j = 0; j < fileNames.length; j++) {
 			try {
 				sc = new Scanner(new FileInputStream(fileNames[j]));
-				ConvertCSVtoHTML(fileNames[j], fileNames);
+				ConvertCSVtoHTML(fileNames[j], fileNames, j);
 			} 
 			catch (FileNotFoundException e) {
 				System.out.println("File '" + fileNames[j] + "' could not be found or opened. Please check if file exists or is readable.");
@@ -86,7 +85,7 @@ public class Driver {
 	}
 	
 	
-	public static void ConvertCSVtoHTML(String file, String[] outFiles) {
+	public static void ConvertCSVtoHTML(String file, String[] outFiles, int fileIndex) {
 		// checking if valid csv file
 		StringTokenizer st= null;
 		String line = null;
@@ -108,7 +107,8 @@ public class Driver {
 						if(lineNum == 1) {
 							String tokenHead = st.nextToken();
 							if(tokenHead == "") {
-								// remove length one from outfiles 
+								// remove length one from outfiles at correct index (if its 3rd file remove that one)
+								outFiles = removeFile(outFiles, fileIndex);
 								throw new CSVAttributeMissing(strFile);
 							}
 							else {
@@ -123,18 +123,37 @@ public class Driver {
 							}
 							else {
 								// creating corresponding html
-								for(int i = 0; i < outFiles.length; i++) {
-									try {
-										htmlFile = outFiles[i].substring(0, (outFiles[i].length())-4);
-										htmlFile = htmlFile + "html";
-										System.out.println("This file: " + htmlFile);
-										pw = new PrintWriter(new FileOutputStream(htmlFile), true);
-										pw.write("**  " + tokenData + "  **");
+								try {
+									htmlFile = outFiles[fileIndex].substring(0, (outFiles[fileIndex].length())-4);
+									htmlFile = htmlFile + "html";
+									System.out.println("This file: " + htmlFile);
+									pw = new PrintWriter(new FileOutputStream(htmlFile), true);
+									for(int l = 0; l < 5; l++) {
+										pw.append("--  " + attributes[l] + "  --"); // this wont work
+										// instead CREATE A METHOD THAT WILL TAKE AND CONVERT ALL THE TOKENS TO HTML
+										// I already seperated it into the "header" and "data" fields
+										// Also small note, we are allowed to assume there will alwaysv only be 
+										// 4 columns of data so 4 tokens/ line
 									}
-									catch (FileNotFoundException e) {
-										System.out.println("Error creating or opening " + htmlFile);
-									}
+									pw.append("**  " + tokenData + "  **");
 								}
+								catch (FileNotFoundException e) {
+									System.out.println("Error creating or opening " + htmlFile);
+								}
+								// this may need to be commented back in because i'm not sure 
+								// if current technique will run four times for each libe yet. 
+//								for(int i = 0; i < outFiles.length; i++) {
+//									try {
+//										htmlFile = outFiles[i].substring(0, (outFiles[i].length())-4);
+//										htmlFile = htmlFile + "html";
+//										System.out.println("This file: " + htmlFile);
+//										pw = new PrintWriter(new FileOutputStream(htmlFile), true);
+//										pw.write("**  " + tokenData + "  **");
+//									}
+//									catch (FileNotFoundException e) {
+//										System.out.println("Error creating or opening " + htmlFile);
+//									}
+//								}
 							}
 						}
 					}
@@ -163,5 +182,20 @@ public class Driver {
 			System.exit(0);
 			// here print to Exceptions.log??
 		}
+	}
+	
+	public static String[] removeFile(String[] fileArr, int index) {
+		fileArr[index] = null;
+//		String[] copyArr = new String[fileArr.length];
+		String[] newArr = new String[fileArr.length - 1];
+//		for(int i = 0; i < fileArr.length; i ++) {
+//			 fileArr[i] = copyArr[i];
+//		 }
+		for(int j = 0; j < newArr.length - 1; j++) {
+			if(fileArr[j] != null) {
+				newArr[j] = fileArr[j];
+			}
+		}
+		return newArr;
 	}
 }
