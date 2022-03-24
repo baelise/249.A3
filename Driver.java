@@ -93,6 +93,7 @@ public class Driver {
 		//String[][] data = null;
 		String htmlFile = "";
 		PrintWriter pw = null;
+		String tokenNote = null;
 		//PrintWriter pwE = null; // this is for Exceptions.log later
 		try {
 			int lineNum = 0, lessLine = 0;
@@ -103,9 +104,14 @@ public class Driver {
 				lineNum++;
 				for(int k = 0; k < 5; k++) {
 					st = new StringTokenizer(line, ",");
+					String tokenTest = st.nextToken();
 					try {
 						if(lineNum == 1) {
-							String tokenHead = st.nextToken();
+							// this is for first line in file, its a single data field "title" row 
+							String tokenCaption = tokenTest;
+						}
+						if(lineNum == 2) {
+							String tokenHead = tokenTest;
 							if(tokenHead == "") {
 								// remove length one from outfiles at correct index (if its 3rd file remove that one)
 								outFiles = removeFile(outFiles, fileIndex);
@@ -113,6 +119,12 @@ public class Driver {
 							}
 							else {
 								attributes[k] = tokenHead;
+							}
+						}
+						if(tokenTest.length() >= 5) {
+							// this is if the last line contains a note section
+							if(tokenTest.substring(0, (tokenTest.length() - (tokenTest.length() - 4))).equals("Note:")) {
+								tokenNote = tokenTest;
 							}
 						}
 						else {
@@ -141,7 +153,7 @@ public class Driver {
 									System.out.println("Error creating or opening " + htmlFile);
 								}
 								// this may need to be commented back in because i'm not sure 
-								// if current technique will run four times for each libe yet. 
+								// if current technique will run four times for each line yet. 
 //								for(int i = 0; i < outFiles.length; i++) {
 //									try {
 //										htmlFile = outFiles[i].substring(0, (outFiles[i].length())-4);
