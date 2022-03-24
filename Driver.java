@@ -53,24 +53,45 @@ public class Driver {
 				i = i -1;
 			}
 		}
-		keyboard.close();
 		
+		String[] htmlFiles = new String[numFiles + 1];
 		Scanner sc = null;
-		//String[] outFiles = new String[fileNames.length];
 		for(int j = 0; j < fileNames.length; j++) {
 			try {
 				sc = new Scanner(new FileInputStream(fileNames[j]));
-				ConvertCSVtoHTML(fileNames[j], fileNames, j);
+				htmlFiles = ConvertCSVtoHTML(fileNames[j], fileNames, j, htmlFiles);
+				if(htmlFiles.length == fileNames.length) {
+					fileNames = removeFile(fileNames, j);
+				}
 			} 
 			catch (FileNotFoundException e) {
-				System.out.println("File '" + fileNames[j] + "' could not be found or opened. Please check if file exists or is readable.");
-				System.out.println("Program will now end");
+				String message = "File '" + fileNames[j] + "' could not be found or opened. Please check if file exists or is readable." + "\nProgram will now end";
+				System.out.println(message);
+				ExceptionsForCSV(message);
 				System.exit(0);
 			}
+		}		
+		
+		// finally, display one output file 
+		System.out.println("Number of HTML files: " + htmlFiles.length);
+		System.out.println("List of files you can chose to open: ");
+		for(int k = 0; k < htmlFiles.length; k++) {
+			System.out.println("\n" + htmlFiles[k]);
 		}
 		
-		//ConvertCSVtoHTML(fileNames);
+		System.out.println("Please enter a file name: ");
+		String selectFile = keyboard.nextLine();
+		try {
+			FileReader fileRead = new FileReader(selectFile);
+			BufferedReader inputStream = new BufferedReader(fileRead);
+			display(selectFile, inputStream);
+		}
+		catch (FileNotFoundException e) {
+			System.out.println("File not found or invalid file name, please try again");
+			tryAgain(keyboard);
+		}
 		sc.close();
+		keyboard.close();
 		System.out.println("LEAVING");
 	}
 	
@@ -83,18 +104,81 @@ public class Driver {
 			return true;
 		}
 	}
+	public static String[] removeFile(String[] fileArr, int index) {
+		fileArr[index] = "REMOVE ME";
+		String[] tempArr = new String[fileArr.length];
+		for(int i = 0; i < fileArr.length; i++) {
+			tempArr[i] = fileArr[i];
+		}
+		
+		String[] newArr = new String[fileArr.length - 1];
+		for(int j = 0; j < newArr.length; j++) {
+			if(fileArr[j].equals("REMOVE ME")) {
+				newArr[j] = fileArr[j];
+			}
+		}
+		return newArr;
+	}
+	public static void tryAgain(Scanner keyboard) {
+		System.out.println("Please enter a file name: ");
+		String selectFile = keyboard.nextLine();
+		try {
+			FileReader fileRead = new FileReader(selectFile);
+			BufferedReader inputStream = new BufferedReader(fileRead);
+			display(selectFile, inputStream);
+		}
+		catch (FileNotFoundException e) {
+			System.out.println("File not found or invalid file name, program will now terminate");
+			System.exit(0);
+		}
+	}
 	
+	public static void display(String file, BufferedReader bR) {
+		String line = null;
+		try {
+			while((line = bR.readLine())!= null) {
+				System.out.println(line + "\n");
+			}
+		}
+		catch (IOException e) {
+			
+		}
+	}
 	
-	public static void ConvertCSVtoHTML(String file, String[] outFiles, int fileIndex) {
+	// logs exceptions only when CSV file cannot be opened
+	public static void ExceptionsForCSV(String message) {
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(new FileOutputStream("Exceptions.log"), true);
+			pw.append(message);
+			pw.close();
+		}
+		catch (FileNotFoundException e) {
+			System.out.println("Error creating or opening 'Exceptions.log'");
+		}
+	}
+	
+	public static String[] ConvertCSVtoHTML(String file, String[] userFiles, int fileIndex, String outFiles[]) {
+		
 		// checking if valid csv file
 		StringTokenizer st= null;
 		String line = null;
 		String[] attributes = new String[4];
-		//String[][] data = null;
 		String htmlFile = "";
 		PrintWriter pw = null;
 		String tokenNote = null;
-		//PrintWriter pwE = null; // this is for Exceptions.log later
+		PrintWriter pwE = null;
+		
+		try {
+			pwE = new PrintWriter(new FileOutputStream("Exceptions.log"), true);
+			outFiles[outFiles.length-1] = "Exceptions.log";
+		}
+		catch (FileNotFoundException e) {
+			String message = "Error creating or opening 'Exceptions.log'";
+			System.out.println(message);
+			System.exit(0);
+		}
+		
 		try {
 			int lineNum = 0, lessLine = 0;
 			String strFile = "C:/eliseproulx/eclipse-workspace/Assignment3.249/src/" + file;
@@ -109,13 +193,14 @@ public class Driver {
 						if(lineNum == 1) {
 							// this is for first line in file, its a single data field "title" row 
 							String tokenCaption = tokenTest;
+							k = 5;
 						}
 						if(lineNum == 2) {
 							String tokenHead = tokenTest;
 							if(tokenHead == "") {
 								// remove length one from outfiles at correct index (if its 3rd file remove that one)
 								outFiles = removeFile(outFiles, fileIndex);
-								throw new CSVAttributeMissing(strFile);
+								throw new CSVAttributeMissing(file);
 							}
 							else {
 								attributes[k] = tokenHead;
@@ -123,91 +208,66 @@ public class Driver {
 						}
 						if(tokenTest.length() >= 5) {
 							// this is if the last line contains a note section
-							if(tokenTest.substring(0, (tokenTest.length() - (tokenTest.length() - 4))).equals("Note:")) {
+							if(tokenTest.substring(0, 4).equals("Note:")) {
 								tokenNote = tokenTest;
 							}
 						}
 						else {
 							String tokenData = st.nextToken();
 							if(tokenData == "") {
-								//line = inputStream.readLine(); 
-								throw new CSVDataMissing(strFile, lineNum, attributes[k], tokenData);
+								throw new CSVDataMissing(file, lineNum, attributes[k]);
 							}
 							else {
-								// creating corresponding html
+								// creating corresponding html need to add html format method from andrei
 								try {
 									htmlFile = outFiles[fileIndex].substring(0, (outFiles[fileIndex].length())-4);
 									htmlFile = htmlFile + "html";
 									System.out.println("This file: " + htmlFile);
 									pw = new PrintWriter(new FileOutputStream(htmlFile), true);
-									for(int l = 0; l < 5; l++) {
-										pw.append("--  " + attributes[l] + "  --"); // this wont work
-										// instead CREATE A METHOD THAT WILL TAKE AND CONVERT ALL THE TOKENS TO HTML
-										// I already seperated it into the "header" and "data" fields
-										// Also small note, we are allowed to assume there will alwaysv only be 
-										// 4 columns of data so 4 tokens/ line
-									}
-									pw.append("**  " + tokenData + "  **");
+									outFiles[fileIndex] = htmlFile;
 								}
 								catch (FileNotFoundException e) {
-									System.out.println("Error creating or opening " + htmlFile);
+									String message = "\nError creating '" + htmlFile + "'";
+									pwE.append("\n" + message);
+									System.out.println(message);
+									pwE.flush();
+									pwE.close();
+									System.exit(0);
 								}
-								// this may need to be commented back in because i'm not sure 
-								// if current technique will run four times for each line yet. 
-//								for(int i = 0; i < outFiles.length; i++) {
-//									try {
-//										htmlFile = outFiles[i].substring(0, (outFiles[i].length())-4);
-//										htmlFile = htmlFile + "html";
-//										System.out.println("This file: " + htmlFile);
-//										pw = new PrintWriter(new FileOutputStream(htmlFile), true);
-//										pw.write("**  " + tokenData + "  **");
-//									}
-//									catch (FileNotFoundException e) {
-//										System.out.println("Error creating or opening " + htmlFile);
-//									}
-//								}
 							}
 						}
 					}
+					
 					catch (CSVAttributeMissing e) {
+						String message = e.getMessage(file);
+						pwE.append("\n" + message);
+						pwE.flush();
+						pwE.close();
 						inputStream.close();
 						fileRead.close();
 						System.exit(0);
 					}
 					catch (CSVDataMissing e) {
+						String message = e.getMessage(file, lineNum, attributes[k]);
+						pwE.append("\n" + message);
+						pwE.flush();
 						lessLine++;
-						line = inputStream.readLine(); // should skip line with missing data 
+						line = inputStream.readLine(); // skip line with missing data 
 					}
 				}
-				//pw.println();
 			}
 			System.out.println("out of while, lineNum at: " + lineNum + ", lessLine at: " + lessLine);
 			inputStream.close();
 			fileRead.close();
-			//data = new String[lineNum - lessLine - 1][4];
+			//return outFiles;
 		}
 		catch (FileNotFoundException e) {
+			
 		System.exit(0);
-		// here print to Exceptions.log??
 		}
 		catch (IOException e) {
 			System.exit(0);
-			// here print to Exceptions.log??
 		}
-	}
-	
-	public static String[] removeFile(String[] fileArr, int index) {
-		fileArr[index] = null;
-//		String[] copyArr = new String[fileArr.length];
-		String[] newArr = new String[fileArr.length - 1];
-//		for(int i = 0; i < fileArr.length; i ++) {
-//			 fileArr[i] = copyArr[i];
-//		 }
-		for(int j = 0; j < newArr.length - 1; j++) {
-			if(fileArr[j] != null) {
-				newArr[j] = fileArr[j];
-			}
-		}
-		return newArr;
+		return outFiles;
 	}
 }
