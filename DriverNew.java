@@ -163,7 +163,6 @@ public class Driver {
 	}
 	
 	
-	// how will i NOT OPEN user's file TWICE
 	public static String[] ConvertCSVtoHTML(File file, Scanner inputStream, int fileIndex, String outFiles[]) {
 		
 		// checking if valid csv file
