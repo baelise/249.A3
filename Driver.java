@@ -187,7 +187,7 @@ public class Driver {
 		try {
 			pwE = new PrintWriter(new FileOutputStream("/Users/eliseproulx/eclipse-workspace/Assignment3.249/allFiles/Exceptions.log", true));
 			outFiles[outFiles.length-1] = "Exceptions.log";
-			pw.append("----------------------------------------------------------------------------------------------");
+			pwE.append("----------------------------------------------------------------------------------------------");
 		}
 		catch (FileNotFoundException e) {
 			String message = "Error creating or opening 'Exceptions.log'";
