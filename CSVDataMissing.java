@@ -9,7 +9,7 @@ public class CSVDataMissing extends Exception {
 		System.out.println("Error converting file '" + fileName + "' to HTML at line " + lineNumber + " due to missing data: " + attribute);
 	}
 	
-	public String getMessage(String fileName, int lineNumber, String attribute) {
-		return "Error converting file '" + fileName + "' to HTML at line " + lineNumber + " due to missing data: " + attribute;
+	public String getMessage(String fileName, int lineNumber, String[] attribute, int index) {
+		return "Error, file '" + fileName + "' at line " + lineNumber + " has missing data: " + attribute[index];
 	}
 }
