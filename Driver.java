@@ -1,3 +1,11 @@
+//--------------------------------------------------------------------
+// Elise Proulx (40125538) and Andrei Barbulescu (40208635)
+// COMP 249 - Section S
+// Assignment 3
+// 03/25/2022
+//--------------------------------------------------------------------
+
+/** Importing all necessary built in classes */
 import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -11,8 +19,9 @@ import java.io.File;
 
 public class Driver {
 	public static void main(String[] args) {
-		// ask user for number of files they would like converted
-		boolean validInt = false;
+	/** User is prompted with how many files they would like to convert.
+	 * If user's input is invalid, they are prompted again until their entry is valid. */
+	boolean validInt = false;
 		int numFiles = 2;
 		Scanner keyboard = new Scanner(System.in);
 		while(!(validInt)) {
@@ -24,15 +33,16 @@ public class Driver {
 				}
 				else {
 					keyboard.nextLine();
-					System.out.println("Number must be at least 2");
+					System.out.println("\n**Number must be at least 2, please try again");
 				}
 			}
 			catch (InputMismatchException e){
 				keyboard.nextLine();
-				System.out.println("Invalid input, please try again");
+				System.out.println("\n**Invalid input, please try again");
 			}
 		}
-		// ask user for file names
+		/** User is prompted to enter the names of the files they would like converted.
+		 * If user's input is not of .csv format, they are prompted again. */
 		keyboard.nextLine();
 		String fileName;
 		String checkType;
@@ -46,17 +56,20 @@ public class Driver {
 					fileNames[i] = fileName;
 				}
 				else {
-					System.out.println("Invalid file type, must be .CSV type");
+					System.out.println("\n**Invalid file type, must be .CSV type");
 					fileNames[i] = null;
 					i = i -1;
 				}
 			}
 			else {
-				System.out.println("Invalid entry. Please enter a CSV file name (.csv or .CSV)");
+				System.out.println("\n**Invalid entry. Please enter a CSV file name (.csv or .CSV)");
 				i = i -1;
 			}
 		}	
-		// try to convert each file one at a time 
+		
+		/** Program now attempts to open each file user inputted, one at a time.
+		 * If file is not found or opened, a message is printed to console and Exceptions.log.
+		 * Otherwise, file is sent to ConverCSVtoHTML method*/
 		String[] outFiles = new String[numFiles + 1];
 		File inFile = null;
 		Scanner sc = null;
@@ -67,21 +80,22 @@ public class Driver {
 				outFiles = ConvertCSVtoHTML(inFile, sc, j, outFiles);
 			} 
 			catch (FileNotFoundException e) {
-				String message = "File '" + fileNames[j] + "' could not be found or opened. Please check if file exists or is readable." + "\nProgram will now end";
-				System.out.println(message);
+				String message = "**File '" + fileNames[j] + "' could not be found or opened. Please check if file exists or is readable." + "\nProgram will now end";
+				System.out.println("\n" + message);
 				ExceptionsForCSV(message);
 				System.exit(0);
 			}
 		}
 		
-		// display one output file 
-		System.out.println("Number of HTML files: " + outFiles.length);
+		/** Program prints all converted file names to console as well as Exceptions.log.
+		 * User may enter file name of choice for display to console. 
+		 * If user does not enter a valid file name, a method is called to allow a second try.*/
 		System.out.println("\nList of files you can chose to open: ");
 		for(int k = 0; k < outFiles.length; k++) {
 			System.out.println("  " + (k+1) + ". " + outFiles[k]);
 		}
 		
-		System.out.println("\nPlease enter a file name: ");
+		System.out.println("\nPlease enter a file name from above list: ");
 		String selectFile = keyboard.nextLine();
 		BufferedReader bR = null;
 		String readLine;
@@ -92,16 +106,16 @@ public class Driver {
 			}
 		}
 		catch (IOException e) {
-			System.out.println("File not found or invalid file name, please try again");
+			System.out.println("\n**File not found or invalid file name, please try again");
 			tryAgain(keyboard);
 		}
 		sc.close();
 		keyboard.close();
-		System.out.println("LEAVING");
+		System.out.println("---- Thank you for using this program. Program will now terminate. ----");
 	}
-	// try again method if user inputs invalid file name for displaying
+	/** This method is called for a second attempt as entering a valid file name to display.*/
 	public static void tryAgain(Scanner keyboard) {
-		System.out.println("Please enter a file name: ");
+		System.out.println("Please enter a file name from above list: ");
 		String selectFile = keyboard.nextLine();
 		BufferedReader bR = null;
 		String readLine;
@@ -112,11 +126,11 @@ public class Driver {
 			}	
 		}
 		catch (IOException e) {
-			System.out.println("File not found or invalid file name, program will now terminate");
+			System.out.println("\n**File not found or invalid file name, program will now terminate.");
 			System.exit(0);
 		}
 	}
-	// checks to see if user has entered proper number of files
+	/** This method checks if user has entered a proper number of files at the beginning of the program.*/
 	public static boolean TooSmall(int i) {
 		if(i < 2) {
 			return false;
@@ -136,11 +150,12 @@ public class Driver {
 			pw.close();
 		}
 		catch (FileNotFoundException e) {
-			System.out.println("Error creating or opening 'Exceptions.log'");
+			System.out.println("\n**Error creating or opening 'Exceptions.log'");
 		}
 	}
 	
-	// formats beginning of html file for convenience
+	/** A short method that returns a string to be appended to the beginning of every HTML created.
+	 * Includes the title and attributes of the file in question*/
 	public static String HTMLFormat(String c, String[] a) {
         String htmlBeginning = """
                 <!DOCTYPE html>
@@ -171,6 +186,7 @@ public class Driver {
         return start;
     }
 
+	/** Method that will convert any valid .csv file to HTML*/
 	public static String[] ConvertCSVtoHTML(File file, Scanner inputStream, int fileIndex, String outFiles[]) {
 		String caption = null;
 		String[] attributes = new String[4];
@@ -183,39 +199,44 @@ public class Driver {
 		int lineNum = 0;
 		int indexA = 0;
 		File oFile = null;
-		
+		/** Try block that attempts to open the Exceptions.log file*/
 		try {
 			pwE = new PrintWriter(new FileOutputStream("/Users/eliseproulx/eclipse-workspace/Assignment3.249/allFiles/Exceptions.log", true));
 			outFiles[outFiles.length-1] = "Exceptions.log";
 			pwE.append("----------------------------------------------------------------------------------------------");
 		}
 		catch (FileNotFoundException e) {
-			String message = "Error creating or opening 'Exceptions.log'";
-			System.out.println(message);
+			String message = "**Error creating or opening 'Exceptions.log'";
+			System.out.println("\n" + message);
 			System.exit(0);
 		}
+		/** Try block that attempts to create the corresponding .html file*/
 		try {
 			oFile = new File("/Users/eliseproulx/eclipse-workspace/Assignment3.249/allFiles/" + htmlFile);
 			pw = new PrintWriter(new FileOutputStream(oFile.getName()), true);
 		}
 		catch (FileNotFoundException e) {
-			String message = "\nError creating '" + htmlFile + "'\nNOT due to missing Attribute or Data";
+			String message = "\n**Error creating '" + htmlFile + "'\nNOT due to missing Attribute or Data";
 			pwE.append("\n" + message);
-			System.out.println(message);
+			System.out.println("\n" + message);
 			pwE.flush();
 			pwE.close();
 			System.exit(0);
 		}
+		/** While loop that runs through file only if the file has another line to read.*/
 		while(inputStream.hasNextLine()) {
 			line = inputStream.nextLine();
 			String[] lineArr = line.split(",");
 			lineNum++;
-			System.out.println("LineNum at: " + lineNum);
+			/** If statements determine which row in the table we are processing.*/
+			/**Title row*/
 			if(lineNum == 1) {
 				caption = lineArr[0];
-				System.out.println(caption);
 			}
+			/**Attribute row*/
 			if(lineNum == 2) {
+				/**Try block that checks for any missing attributes.
+				 * If there is a missing attribute, corresponding HTML file is deleted and program terminates.*/
 				try {
 					for(int i  = 0; i < lineArr.length; i++) {
 						if(lineArr[i].equals("")) {
@@ -223,7 +244,6 @@ public class Driver {
 						}
 						else {
 							attributes[i] = lineArr[i];
-							System.out.println(attributes[i]);
 						}
 					}
 					pw.write(HTMLFormat(caption, attributes));
@@ -235,16 +255,19 @@ public class Driver {
 					pwE.close();
 					inputStream.close();
 					if(!oFile.delete()) {
-						System.out.println("Unable to delete file '" + oFile.getName() + "'.");
+						System.out.println("\n**Unable to delete file '" + oFile.getName() + "'.");
 					}
 					System.exit(0);
 				}
 			}
+			/**Data and/or Note row*/
 			if(lineNum > 2) {
 				if(lineArr[0].length() >= 5 && lineArr[0].substring(0, 5).equals("Note:")) {
 					pw.print("\n<span>" + lineArr[0] + "</span>");
 				}
 				else {
+					/** Try block check for any missing data. 
+					 * If there is any missing data, the line is skipped and program continues to read next lines.*/
 					try {
 						for(int j = 0; j < lineArr.length; j ++) {
 							indexA = j;
@@ -255,7 +278,7 @@ public class Driver {
 					}
 					catch (CSVDataMissing e) {
 						String message = e.getMessage(file.getName(), lineNum, attributes, indexA);
-						System.out.println(message);
+						System.out.println("\n" + message);
 						pwE.append("\n" + message);
 						pwE.flush();
 						continue;
@@ -276,6 +299,7 @@ public class Driver {
 		pwE.close();
 		pw.flush();
 		pw.close();
+		System.out.println("\nFile '" + htmlFile + "' was created successfully.");
 		return outFiles;
 	}
 }
