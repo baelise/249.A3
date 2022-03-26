@@ -1,15 +1,15 @@
 
-public class CSVDataMissing extends Exception {
+public class CSVAttributeMissing extends Exception {
 	
-	public CSVDataMissing() {
-		super("\n\n***Error 1: Input row cannot be parsed due to missing information");
+	public CSVAttributeMissing() {
+		super("\n\n***Error 2: Input row cannot be parsed due to missing information");
 	}
 	
-	public CSVDataMissing(String fileName, int lineNumber, String attribute) {
-		System.out.println("Error converting file '" + fileName + "' to HTML at line " + lineNumber + " due to missing data: " + attribute);
+	public CSVAttributeMissing(String fileName) {
+		System.out.println("Error converting file '" + fileName + "' to HTML due to missing attribute.");
 	}
 	
-	public String getMessage(String fileName, int lineNumber, String[] attribute, int index) {
-		return "Error, file '" + fileName + "' at line " + lineNumber + " has missing data: " + attribute[index];
+	public String getMessage(String fileName) {
+		return "Error converting file '" + fileName + "' to HTML due to missing attribute.";
 	}
 }
