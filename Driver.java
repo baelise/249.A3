@@ -17,7 +17,10 @@ import java.io.PrintWriter;
 import java.util.InputMismatchException;
 import java.io.File;
 
+
+/**Driver class will handle all input/outfile reading, writing and creation*/
 public class Driver {
+	/**Main method will handle all user inputs and is will call methods and display files at the appropriate time*/
 	public static void main(String[] args) {
 	/** User is prompted with how many files they would like to convert.
 	 * If user's input is invalid, they are prompted again until their entry is valid. */
@@ -140,7 +143,7 @@ public class Driver {
 		}
 	}
 	
-	// logs exceptions only when CSV file cannot be opened
+	/** Logs exceptions only when CSV file cannot be opened */
 	public static void ExceptionsForCSV(String message) {
 		PrintWriter pw = null;
 		try {
